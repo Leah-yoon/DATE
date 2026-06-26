@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>우리 데이트</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #697586;
+      --line: #d7dde5;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --mint: #2c9f8f;
+      --mint-dark: #167467;
+      --coral: #e66f5c;
+      --blue: #3b78c8;
+      --gold: #d99827;
+      --shadow: 0 14px 38px rgba(31, 41, 51, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #eef2f6;
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(100%, 430px);
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .top {
+      padding: 22px 18px 18px;
+      background: linear-gradient(135deg, #fff7ed 0%, #edf8f7 58%, #eef4ff 100%);
+      border-bottom: 1px solid rgba(31, 41, 51, 0.08);
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .month {
+      width: 136px;
+      min-height: 40px;
+      padding: 0 10px;
+      border: 1px solid rgba(31, 41, 51, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--ink);
+    }
+
+    .balance {
+      margin-top: 22px;
+    }
+
+    .label {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .amount {
+      margin: 0;
+      font-size: clamp(34px, 10vw, 46px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subline {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .sync {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      margin-top: 12px;
+      padding: 0 10px;
+      border: 1px solid rgba(31, 41, 51, 0.1);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .sync.online {
+      color: var(--mint-dark);
+    }
+
+    .sync.error {
+      color: var(--coral);
+    }
+
+    .next-date {
+      margin: 14px 0 0;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .next-date span {
+      display: block;
+    }
+
+    .top-blog-task {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 7px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .top-blog-task input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--mint-dark);
+    }
+
+    .top-kind {
+      color: var(--ink);
+    }
+
+    .top-kind.event {
+      color: var(--blue);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 14px 16px 0;
+      background: var(--paper);
+    }
+
+    .tab {
+      min-height: 42px;
+      padding: 0 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      border-color: var(--mint);
+      background: var(--mint);
+      color: white;
+    }
+
+    main {
+      padding: 14px 16px 28px;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .ledger-area.hidden {
+      display: none;
+    }
+
+    .cost-mode {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .cost-mode-button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .cost-mode-button.active {
+      border-color: var(--mint-dark);
+      background: var(--mint-dark);
+      color: white;
+    }
+
+    .cost-section {
+      display: none;
+    }
+
+    .cost-section.active {
+      display: block;
+    }
+
+    .form {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .field input,
+    .field select,
+    .field textarea,
+    .time-grid select {
+      width: 100%;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+    }
+
+    .field input,
+    .field select,
+    .time-grid select {
+      min-height: 44px;
+    }
+
+    .field textarea {
+      min-height: 78px;
+      padding-top: 10px;
+      resize: vertical;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .payer-buttons,
+    .person-buttons,
+    .kind-buttons,
+    .method-buttons {
+      display: grid;
+      gap: 8px;
+    }
+
+    .payer-buttons {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .person-buttons {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .method-buttons {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .time-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .kind-buttons {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .payer-button,
+    .person-button,
+    .kind-button,
+    .method-button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .payer-button.active,
+    .person-button.active,
+    .kind-button.active,
+    .method-button.active {
+      border-color: var(--mint-dark);
+      background: var(--mint-dark);
+      color: white;
+    }
+
+    .check-field {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .check-field input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--mint-dark);
+    }
+
+    .primary {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 12px;
+      border-radius: 8px;
+      background: var(--mint-dark);
+      color: white;
+      font-weight: 900;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 20px 0 10px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .clear {
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .empty {
+      padding: 22px 14px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+      background: #fbfcfd;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 74px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .item strong {
+      display: block;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .price {
+      text-align: right;
+      font-size: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .price.income {
+      color: var(--blue);
+    }
+
+    .price.expense {
+      color: var(--coral);
+    }
+
+    .delete {
+      display: block;
+      min-width: 34px;
+      min-height: 34px;
+      margin: 8px 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .item-actions {
+      display: grid;
+      gap: 6px;
+      justify-items: end;
+    }
+
+    .edit {
+      min-width: 44px;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .cancel-edit {
+      display: none;
+      width: 100%;
+      min-height: 42px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .cancel-edit.active {
+      display: block;
+    }
+
+    .schedule-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      margin-bottom: 7px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .schedule-status.done {
+      background: #e8f5ef;
+      color: var(--mint-dark);
+    }
+
+    .schedule-status.cancelled {
+      background: #fff0ee;
+      color: var(--coral);
+    }
+
+    .kind-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      margin: 0 6px 7px 0;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .kind-badge.event {
+      color: var(--blue);
+    }
+
+    .blog-toggle {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      margin-top: 8px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .blog-toggle.done {
+      border-color: rgba(22, 116, 103, 0.24);
+      background: #e8f5ef;
+      color: var(--mint-dark);
+    }
+
+    .blog-task {
+      border-color: rgba(59, 120, 200, 0.25);
+      background: #f5f9ff;
+    }
+
+    .blog-task-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .blog-task-check {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      flex: 0 0 auto;
+      accent-color: var(--mint-dark);
+    }
+
+    .settlement-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .settlement-card {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .settlement-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-weight: 900;
+    }
+
+    .settlement-head span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .settlement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .settlement-metric {
+      min-height: 64px;
+      padding: 9px 8px;
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .settlement-metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .settlement-metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.25;
+      word-break: keep-all;
+    }
+
+    .people {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .person {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .person-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-weight: 900;
+    }
+
+    .bar {
+      height: 9px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: #edf0f3;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: var(--gold);
+      transition: width 180ms ease;
+    }
+
+    @media (max-width: 360px) {
+      .top {
+        padding-inline: 14px;
+      }
+
+      main,
+      .tabs {
+        padding-inline: 12px;
+      }
+
+      .two {
+        grid-template-columns: 1fr;
+      }
+
+      .settlement-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="top-row">
+        <h1>우리 데이트</h1>
+        <input class="month" id="monthFilter" type="month" aria-label="월 선택">
+      </div>
+
+      <section class="balance" aria-live="polite">
+        <p class="label">이번 달 남은 공동금</p>
+        <p class="amount" id="balance">0원</p>
+        <p class="next-date" id="nextDate">일정을 추가해보세요.</p>
+        <p class="sync" id="syncStatus">로컬 저장 중</p>
+      </section>
+    </header>
+
+    <nav class="tabs" aria-label="입력 종류">
+      <button class="tab active" data-panel="costPanel" type="button">비용</button>
+      <button class="tab" data-panel="schedulePanel" type="button">일정</button>
+      <button class="tab" data-panel="settlementPanel" type="button">월별 결산</button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="costPanel">
+        <div class="cost-mode" role="group" aria-label="비용 입력 종류">
+          <button class="cost-mode-button active" data-cost-section="expenseSection" type="button">지출</button>
+          <button class="cost-mode-button" data-cost-section="incomeSection" type="button">충전</button>
+        </div>
+
+        <section class="cost-section active" id="expenseSection">
+          <form class="form" id="expenseForm" novalidate>
+          <div class="form-grid">
+            <div class="form-grid two">
+              <div class="field">
+                <label for="expenseDate">날짜</label>
+                <input id="expenseDate" type="date">
+              </div>
+              <div class="field">
+                <label for="expenseCategory">분류</label>
+                <select id="expenseCategory">
+                  <option>식사</option>
+                  <option>카페</option>
+                  <option>영화/전시</option>
+                  <option>교통</option>
+                  <option>선물</option>
+                  <option>숙소/여행</option>
+                  <option>기타</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid two">
+              <div class="field">
+                <label for="expenseAmount">실제 결제 금액</label>
+                <input id="expenseAmount" type="number" inputmode="numeric" min="0" step="100" placeholder="0">
+              </div>
+              <div class="field">
+                <label>결제 구분</label>
+                <div class="method-buttons" id="expenseMethodButtons" role="group" aria-label="결제 구분">
+                  <button class="method-button active" data-expense-method="현금" type="button">현금</button>
+                  <button class="method-button" data-expense-method="서비스" type="button">서비스</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-grid two">
+              <div class="field">
+                <label for="expenseSupply">공급받은 금액</label>
+                <input id="expenseSupply" type="number" inputmode="numeric" min="0" step="100" placeholder="0">
+              </div>
+              <div class="field">
+                <label>체험단 글</label>
+                <label class="check-field">
+                  <input id="expenseBlogRequired" type="checkbox">
+                  <span>블로그 필수</span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="expenseTitle">사용처</label>
+              <input id="expenseTitle" type="text" inputmode="text" placeholder="예: 영화, 저녁, 카페">
+            </div>
+            <div class="field">
+              <label for="expenseCampaignSite">체험단 사이트</label>
+              <input id="expenseCampaignSite" type="text" inputmode="text" placeholder="예: 레뷰, 강남맛집, 디너의여왕">
+            </div>
+            <div class="field">
+              <label>결제한 사람</label>
+              <div class="payer-buttons" id="expensePayerButtons" role="group" aria-label="결제한 사람">
+                <button class="payer-button active" data-expense-payer="공동금" type="button">공동금</button>
+                <button class="payer-button" data-expense-payer="플로잉" type="button">플로잉</button>
+                <button class="payer-button" data-expense-payer="아요" type="button">아요</button>
+                <button class="payer-button" data-expense-payer="태화니" type="button">태화니</button>
+              </div>
+            </div>
+          </div>
+          <button class="primary" id="expenseSubmit" type="submit">지출 추가</button>
+          <button class="cancel-edit" id="expenseCancelEdit" type="button">수정 취소</button>
+          </form>
+        </section>
+
+        <section class="cost-section" id="incomeSection">
+          <form class="form" id="incomeForm" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label>충전한 사람</label>
+              <div class="person-buttons" id="incomePersonButtons" role="group" aria-label="충전한 사람">
+                <button class="person-button active" data-income-person="아요" type="button">아요</button>
+                <button class="person-button" data-income-person="태화니" type="button">태화니</button>
+                <button class="person-button" data-income-person="플로잉" type="button">플로잉</button>
+              </div>
+            </div>
+            <div class="form-grid two">
+              <div class="field">
+                <label for="incomeAmount">금액</label>
+                <input id="incomeAmount" type="number" inputmode="numeric" min="0" step="1000" placeholder="0">
+              </div>
+              <div class="field">
+                <label for="incomeDate">날짜</label>
+                <input id="incomeDate" type="date">
+              </div>
+            </div>
+          </div>
+          <button class="primary" id="incomeSubmit" type="submit">충전 추가</button>
+          <button class="cancel-edit" id="incomeCancelEdit" type="button">수정 취소</button>
+          </form>
+
+          <section class="people" id="peopleSummary" aria-label="사람별 충전 합계"></section>
+        </section>
+      </section>
+
+      <section class="panel" id="schedulePanel">
+        <form class="form" id="scheduleForm" novalidate>
+          <div class="form-grid">
+            <div class="form-grid two">
+              <div class="field">
+                <label>종류</label>
+                <div class="kind-buttons" id="scheduleKindButtons" role="group" aria-label="일정 종류">
+                  <button class="kind-button active" data-schedule-kind="데이트" type="button">데이트</button>
+                  <button class="kind-button" data-schedule-kind="경조사" type="button">경조사</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="scheduleDate">날짜</label>
+                <input id="scheduleDate" type="date">
+              </div>
+            </div>
+            <div class="field">
+              <label>시간</label>
+              <div class="form-grid time-grid">
+                <select id="scheduleHour" aria-label="시간"></select>
+                <select id="scheduleMinute" aria-label="분"></select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="schedulePlace">일정</label>
+              <input id="schedulePlace" type="text" placeholder="예: 성수 데이트, 결혼식, 생일">
+            </div>
+            <div class="field">
+              <label for="scheduleMemo">메모</label>
+              <textarea id="scheduleMemo" placeholder="예약, 준비물, 하고 싶은 것"></textarea>
+            </div>
+          </div>
+          <button class="primary" id="scheduleSubmit" type="submit">일정 추가</button>
+          <button class="cancel-edit" id="scheduleCancelEdit" type="button">수정 취소</button>
+        </form>
+
+        <div class="section-title">
+          <h2>앞으로 한 달 일정</h2>
+          <button class="clear" id="clearSchedules" type="button">일정 삭제</button>
+        </div>
+        <section class="list" id="scheduleList" aria-live="polite"></section>
+      </section>
+
+      <section class="panel" id="settlementPanel">
+        <div class="section-title">
+          <h2>월별 결산</h2>
+        </div>
+        <section class="settlement-list" id="settlementList" aria-live="polite"></section>
+      </section>
+
+      <div class="ledger-area" id="ledgerArea">
+        <div class="section-title">
+          <h2>이번 달 기록</h2>
+          <button class="clear" id="clearMonth" type="button">이번 달 삭제</button>
+        </div>
+        <section class="list" id="entryList" aria-live="polite"></section>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const storageKey = "date-ledger-v1";
+    const sheetApiUrl = "https://script.google.com/macros/s/AKfycbwa9BdnPWM5NdQ_lq-7Lzlp9It08iC3TnuIDAjimkgwwf6Ju7SBs05EKj2RYJ4ZlmzCzg/exec";
+    const people = ["아요", "태화니", "플로잉"];
+    const today = new Date();
+    const todayText = toDateInput(today);
+    const thisMonth = todayText.slice(0, 7);
+    const storedData = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+    const state = {
+      entries: Array.isArray(storedData) ? storedData : (storedData.entries || []),
+      schedules: Array.isArray(storedData) ? [] : (storedData.schedules || []),
+      month: thisMonth,
+      editingEntryId: "",
+      editingScheduleId: ""
+    };
+
+    const els = {
+      monthFilter: document.querySelector("#monthFilter"),
+      balance: document.querySelector("#balance"),
+      nextDate: document.querySelector("#nextDate"),
+      expenseForm: document.querySelector("#expenseForm"),
+      incomeForm: document.querySelector("#incomeForm"),
+      scheduleForm: document.querySelector("#scheduleForm"),
+      expenseSubmit: document.querySelector("#expenseSubmit"),
+      incomeSubmit: document.querySelector("#incomeSubmit"),
+      scheduleSubmit: document.querySelector("#scheduleSubmit"),
+      expenseCancelEdit: document.querySelector("#expenseCancelEdit"),
+      incomeCancelEdit: document.querySelector("#incomeCancelEdit"),
+      scheduleCancelEdit: document.querySelector("#scheduleCancelEdit"),
+      expenseTitle: document.querySelector("#expenseTitle"),
+      expenseAmount: document.querySelector("#expenseAmount"),
+      expenseSupply: document.querySelector("#expenseSupply"),
+      expenseCampaignSite: document.querySelector("#expenseCampaignSite"),
+      expenseBlogRequired: document.querySelector("#expenseBlogRequired"),
+      expenseMethodButtons: document.querySelector("#expenseMethodButtons"),
+      expenseCategory: document.querySelector("#expenseCategory"),
+      expensePayerButtons: document.querySelector("#expensePayerButtons"),
+      expenseDate: document.querySelector("#expenseDate"),
+      incomePersonButtons: document.querySelector("#incomePersonButtons"),
+      incomeAmount: document.querySelector("#incomeAmount"),
+      incomeDate: document.querySelector("#incomeDate"),
+      scheduleKindButtons: document.querySelector("#scheduleKindButtons"),
+      scheduleDate: document.querySelector("#scheduleDate"),
+      scheduleHour: document.querySelector("#scheduleHour"),
+      scheduleMinute: document.querySelector("#scheduleMinute"),
+      schedulePlace: document.querySelector("#schedulePlace"),
+      scheduleMemo: document.querySelector("#scheduleMemo"),
+      peopleSummary: document.querySelector("#peopleSummary"),
+      entryList: document.querySelector("#entryList"),
+      scheduleList: document.querySelector("#scheduleList"),
+      settlementList: document.querySelector("#settlementList"),
+      ledgerArea: document.querySelector("#ledgerArea"),
+      clearMonth: document.querySelector("#clearMonth"),
+      clearSchedules: document.querySelector("#clearSchedules"),
+      syncStatus: document.querySelector("#syncStatus")
+    };
+
+    els.monthFilter.value = state.month;
+    fillScheduleTimes();
+    els.expenseDate.value = todayText;
+    els.incomeDate.value = todayText;
+    els.scheduleDate.value = todayText;
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+        tab.classList.add("active");
+        document.querySelector(`#${tab.dataset.panel}`).classList.add("active");
+        els.ledgerArea.classList.toggle("hidden", ["schedulePanel", "settlementPanel"].includes(tab.dataset.panel));
+      });
+    });
+
+    document.querySelectorAll("[data-cost-section]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const editingEntry = currentEditingEntry();
+        if (button.dataset.costSection === "expenseSection" && editingEntry?.type === "income") {
+          resetIncomeForm();
+        }
+        if (button.dataset.costSection === "incomeSection" && editingEntry?.type === "expense") {
+          resetExpenseForm();
+        }
+        document.querySelectorAll("[data-cost-section]").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll(".cost-section").forEach((section) => section.classList.remove("active"));
+        button.classList.add("active");
+        document.querySelector(`#${button.dataset.costSection}`).classList.add("active");
+      });
+    });
+
+    els.incomePersonButtons.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-income-person]");
+      if (!button) return;
+      els.incomePersonButtons.querySelectorAll(".person-button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+
+    els.expenseMethodButtons.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-expense-method]");
+      if (!button) return;
+      els.expenseMethodButtons.querySelectorAll(".method-button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+
+    els.expensePayerButtons.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-expense-payer]");
+      if (!button) return;
+      els.expensePayerButtons.querySelectorAll(".payer-button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+
+    els.scheduleKindButtons.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-schedule-kind]");
+      if (!button) return;
+      els.scheduleKindButtons.querySelectorAll(".kind-button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+
+    els.monthFilter.addEventListener("change", () => {
+      state.month = els.monthFilter.value || thisMonth;
+      render();
+    });
+
+    els.nextDate.addEventListener("change", (event) => {
+      const checkbox = event.target.closest("[data-top-blog-check]");
+      if (!checkbox) return;
+      const entry = state.entries.find((item) => item.id === checkbox.dataset.topBlogCheck);
+      if (!entry) return;
+      if (checkbox.checked && !confirm("작성 마무리 하셨나요?")) {
+        checkbox.checked = false;
+        return;
+      }
+      entry.blogDone = checkbox.checked;
+      save();
+      syncToSheet();
+      render();
+    });
+
+    els.expenseForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveEntry({
+        type: "expense",
+        title: els.expenseTitle.value.trim() || "지출",
+        amount: Number(els.expenseAmount.value || 0),
+        supply: Number(els.expenseSupply.value || 0),
+        campaignSite: els.expenseCampaignSite.value.trim(),
+        blogRequired: els.expenseBlogRequired.checked,
+        blogDone: els.expenseBlogRequired.checked ? currentEditingEntry()?.blogDone === true : false,
+        category: els.expenseCategory.value,
+        person: selectedExpensePayer(),
+        method: selectedExpenseMethod(),
+        date: els.expenseDate.value || todayText
+      });
+      resetExpenseForm();
+      els.expenseTitle.focus();
+    });
+
+    els.incomeForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveEntry({
+        type: "income",
+        title: "공동금 충전",
+        amount: Number(els.incomeAmount.value || 0),
+        category: "충전",
+        person: selectedIncomePerson(),
+        method: "",
+        date: els.incomeDate.value || todayText
+      });
+      resetIncomeForm();
+      els.incomeAmount.focus();
+    });
+
+    els.scheduleForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveSchedule({
+        kind: selectedScheduleKind(),
+        date: els.scheduleDate.value || todayText,
+        time: selectedScheduleTime(),
+        place: els.schedulePlace.value.trim() || "일정",
+        estimate: 0,
+        status: "예정",
+        memo: els.scheduleMemo.value.trim()
+      });
+      resetScheduleForm();
+      els.schedulePlace.focus();
+    });
+
+    els.expenseCancelEdit.addEventListener("click", resetExpenseForm);
+    els.incomeCancelEdit.addEventListener("click", resetIncomeForm);
+    els.scheduleCancelEdit.addEventListener("click", resetScheduleForm);
+
+    els.clearMonth.addEventListener("click", () => {
+      const count = filteredEntries().length;
+      if (!count) return;
+      const ok = confirm(`${state.month} 기록 ${count}건을 삭제할까요?`);
+      if (!ok) return;
+      state.entries = state.entries.filter((entry) => !String(entry.date || "").startsWith(state.month));
+      save();
+      syncToSheet();
+      render();
+    });
+
+    els.clearSchedules.addEventListener("click", () => {
+      const count = filteredSchedules().length;
+      if (!count) return;
+      const ok = confirm(`앞으로 한 달 일정 ${count}건을 삭제할까요?`);
+      if (!ok) return;
+      state.schedules = state.schedules.filter((schedule) => !isWithinNextMonth(schedule.date));
+      save();
+      syncToSheet();
+      render();
+    });
+
+    els.entryList.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-edit]");
+      if (editButton) {
+        editEntry(editButton.dataset.edit);
+        return;
+      }
+
+      const blogButton = event.target.closest("[data-toggle-blog]");
+      if (blogButton) {
+        const entry = state.entries.find((item) => item.id === blogButton.dataset.toggleBlog);
+        if (entry) {
+          entry.blogDone = !entry.blogDone;
+          save();
+          syncToSheet();
+          render();
+        }
+        return;
+      }
+
+      const button = event.target.closest("[data-delete]");
+      if (!button) return;
+      state.entries = state.entries.filter((entry) => entry.id !== button.dataset.delete);
+      save();
+      syncToSheet();
+      render();
+    });
+
+    els.scheduleList.addEventListener("click", (event) => {
+      const editButton = event.target.closest("[data-edit-schedule]");
+      if (editButton) {
+        editSchedule(editButton.dataset.editSchedule);
+        return;
+      }
+
+      const blogButton = event.target.closest("[data-toggle-blog]");
+      if (blogButton) {
+        const entry = state.entries.find((item) => item.id === blogButton.dataset.toggleBlog);
+        if (entry) {
+          entry.blogDone = !entry.blogDone;
+          save();
+          syncToSheet();
+          render();
+        }
+        return;
+      }
+
+      const button = event.target.closest("[data-delete-schedule]");
+      if (!button) return;
+      state.schedules = state.schedules.filter((schedule) => schedule.id !== button.dataset.deleteSchedule);
+      save();
+      syncToSheet();
+      render();
+    });
+
+    els.scheduleList.addEventListener("change", (event) => {
+      const checkbox = event.target.closest("[data-blog-check]");
+      if (!checkbox) return;
+      const entry = state.entries.find((item) => item.id === checkbox.dataset.blogCheck);
+      if (!entry) return;
+      if (checkbox.checked && !confirm("작성 마무리 하셨나요?")) {
+        checkbox.checked = false;
+        return;
+      }
+      entry.blogDone = checkbox.checked;
+      save();
+      syncToSheet();
+      render();
+    });
+
+    function saveEntry(entry) {
+      const editingId = state.editingEntryId;
+      if (editingId) {
+        const index = state.entries.findIndex((item) => item.id === editingId);
+        if (index >= 0) {
+          state.entries[index] = {
+            ...state.entries[index],
+            ...entry
+          };
+        }
+      } else {
+        state.entries.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          ...entry
+        });
+      }
+      state.month = entry.date.slice(0, 7);
+      els.monthFilter.value = state.month;
+      save();
+      syncToSheet();
+      render();
+    }
+
+    function saveSchedule(schedule) {
+      const editingId = state.editingScheduleId;
+      if (editingId) {
+        const index = state.schedules.findIndex((item) => item.id === editingId);
+        if (index >= 0) {
+          state.schedules[index] = {
+            ...state.schedules[index],
+            ...schedule
+          };
+        }
+      } else {
+        state.schedules.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          ...schedule
+        });
+      }
+      state.month = schedule.date.slice(0, 7);
+      els.monthFilter.value = state.month;
+      save();
+      syncToSheet();
+      render();
+    }
+
+    function currentEditingEntry() {
+      return state.entries.find((entry) => entry.id === state.editingEntryId);
+    }
+
+    function editEntry(id) {
+      const entry = state.entries.find((item) => item.id === id);
+      if (!entry) return;
+
+      if (entry.type === "income") {
+        document.querySelector('[data-panel="costPanel"]').click();
+        document.querySelector('[data-cost-section="incomeSection"]').click();
+        resetExpenseForm();
+        state.editingEntryId = id;
+        els.incomeAmount.value = entry.amount || "";
+        els.incomeDate.value = entry.date || todayText;
+        setIncomePerson(entry.person || people[0]);
+        els.incomeSubmit.textContent = "충전 수정 저장";
+        els.incomeCancelEdit.classList.add("active");
+        return;
+      }
+
+      document.querySelector('[data-panel="costPanel"]').click();
+      document.querySelector('[data-cost-section="expenseSection"]').click();
+      resetIncomeForm();
+      state.editingEntryId = id;
+      els.expenseTitle.value = entry.title || "";
+      els.expenseAmount.value = entry.amount || "";
+      els.expenseSupply.value = getSupply(entry) || "";
+      els.expenseCampaignSite.value = entry.campaignSite || "";
+      els.expenseBlogRequired.checked = isBlogRequired(entry);
+      els.expenseCategory.value = entry.category || "식사";
+      els.expenseDate.value = entry.date || todayText;
+      setExpenseMethod(entry.method || "현금");
+      setExpensePayer(entry.person || "공동금");
+      els.expenseSubmit.textContent = "지출 수정 저장";
+      els.expenseCancelEdit.classList.add("active");
+    }
+
+    function editSchedule(id) {
+      const schedule = state.schedules.find((item) => item.id === id);
+      if (!schedule) return;
+      document.querySelector('[data-panel="schedulePanel"]').click();
+      state.editingScheduleId = id;
+      setScheduleKind(schedule.kind || "데이트");
+      els.scheduleDate.value = schedule.date || todayText;
+      const [hour = "", minute = ""] = String(schedule.time || "").split(":");
+      els.scheduleHour.value = hour;
+      els.scheduleMinute.value = minute;
+      els.schedulePlace.value = schedule.place || "";
+      els.scheduleMemo.value = schedule.memo || "";
+      els.scheduleSubmit.textContent = "일정 수정 저장";
+      els.scheduleCancelEdit.classList.add("active");
+    }
+
+    function resetExpenseForm() {
+      state.editingEntryId = "";
+      els.expenseForm.reset();
+      els.expenseDate.value = todayText;
+      els.expenseSupply.value = "";
+      els.expenseCampaignSite.value = "";
+      els.expenseBlogRequired.checked = false;
+      setExpenseMethod("현금");
+      setExpensePayer("공동금");
+      els.expenseSubmit.textContent = "지출 추가";
+      els.expenseCancelEdit.classList.remove("active");
+    }
+
+    function resetIncomeForm() {
+      state.editingEntryId = "";
+      els.incomeForm.reset();
+      els.incomeDate.value = todayText;
+      setIncomePerson(people[0]);
+      els.incomeSubmit.textContent = "충전 추가";
+      els.incomeCancelEdit.classList.remove("active");
+    }
+
+    function resetScheduleForm() {
+      state.editingScheduleId = "";
+      els.scheduleForm.reset();
+      setScheduleKind("데이트");
+      els.scheduleDate.value = todayText;
+      els.scheduleHour.value = "";
+      els.scheduleMinute.value = "";
+      els.scheduleSubmit.textContent = "일정 추가";
+      els.scheduleCancelEdit.classList.remove("active");
+    }
+
+    function fillScheduleTimes() {
+      const hourOptions = [`<option value="">시</option>`];
+      for (let hour = 0; hour < 24; hour += 1) {
+        const value = String(hour).padStart(2, "0");
+        hourOptions.push(`<option value="${value}">${value}시</option>`);
+      }
+
+      const minuteOptions = [`<option value="">분</option>`];
+      for (let minute = 0; minute < 60; minute += 10) {
+        const value = String(minute).padStart(2, "0");
+        minuteOptions.push(`<option value="${value}">${value}분</option>`);
+      }
+
+      els.scheduleHour.innerHTML = hourOptions.join("");
+      els.scheduleMinute.innerHTML = minuteOptions.join("");
+    }
+
+    function selectedIncomePerson() {
+      const active = els.incomePersonButtons.querySelector(".person-button.active");
+      return active ? active.dataset.incomePerson : people[0];
+    }
+
+    function setIncomePerson(name) {
+      els.incomePersonButtons.querySelectorAll(".person-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.incomePerson === name);
+      });
+    }
+
+    function selectedExpenseMethod() {
+      const active = els.expenseMethodButtons.querySelector(".method-button.active");
+      return active ? active.dataset.expenseMethod : "현금";
+    }
+
+    function setExpenseMethod(name) {
+      els.expenseMethodButtons.querySelectorAll(".method-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.expenseMethod === name);
+      });
+    }
+
+    function selectedExpensePayer() {
+      const active = els.expensePayerButtons.querySelector(".payer-button.active");
+      return active ? active.dataset.expensePayer : "공동금";
+    }
+
+    function setExpensePayer(name) {
+      els.expensePayerButtons.querySelectorAll(".payer-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.expensePayer === name);
+      });
+    }
+
+    function selectedScheduleKind() {
+      const active = els.scheduleKindButtons.querySelector(".kind-button.active");
+      return active ? (active.dataset.scheduleKind || active.textContent.trim()) : "데이트";
+    }
+
+    function setScheduleKind(name) {
+      els.scheduleKindButtons.querySelectorAll(".kind-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.scheduleKind === name);
+      });
+    }
+
+    function selectedScheduleTime() {
+      if (!els.scheduleHour.value) return "";
+      return `${els.scheduleHour.value}:${els.scheduleMinute.value || "00"}`;
+    }
+
+    function filteredEntries() {
+      return state.entries
+        .filter((entry) => String(entry.date || "").startsWith(state.month))
+        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || b.id.localeCompare(a.id));
+    }
+
+    function filteredSchedules() {
+      return state.schedules
+        .filter((schedule) => isWithinNextMonth(schedule.date))
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || (a.time || "").localeCompare(b.time || ""));
+    }
+
+    function render() {
+      const entries = filteredEntries();
+      const schedules = filteredSchedules();
+      const income = sum(entries, "income");
+      const expense = sum(entries, "expense");
+      const balance = income - expense;
+
+      els.balance.textContent = money(balance);
+      renderNextDate();
+      renderPeople(entries);
+      renderList(entries);
+      renderSchedules(schedules);
+      renderSettlements();
+    }
+
+    function renderPeople(entries) {
+      const totals = Object.fromEntries(people.map((name) => [name, 0]));
+      entries
+        .filter((entry) => entry.type === "income")
+        .forEach((entry) => {
+          totals[entry.person] = (totals[entry.person] || 0) + entry.amount;
+        });
+
+      const max = Math.max(...Object.values(totals), 1);
+      els.peopleSummary.innerHTML = people.map((name) => {
+        const value = totals[name] || 0;
+        const width = Math.round((value / max) * 100);
+        return `
+          <article class="person">
+            <div class="person-head">
+              <span>${escapeHtml(name)}</span>
+              <span>${money(value)}</span>
+            </div>
+            <div class="bar" aria-hidden="true"><span style="width: ${width}%"></span></div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderList(entries) {
+      if (!entries.length) {
+        els.entryList.innerHTML = `<div class="empty">아직 기록이 없어요.<br>첫 충전이나 지출을 추가해보세요.</div>`;
+        return;
+      }
+
+      els.entryList.innerHTML = entries.map((entry) => {
+        const sign = entry.type === "income" ? "+" : "-";
+        const priceClass = entry.type === "income" ? "income" : "expense";
+        const method = entry.method ? ` · ${escapeHtml(entry.method)}` : "";
+        const supply = getSupply(entry);
+        const supplyText = supply ? ` · 공급받은 금액 ${money(supply)}` : "";
+        const campaignSite = entry.campaignSite ? ` · ${escapeHtml(entry.campaignSite)}` : "";
+        const blogButton = entry.type === "expense" && isBlogRequired(entry)
+          ? `<button class="blog-toggle ${entry.blogDone ? "done" : ""}" data-toggle-blog="${entry.id}" type="button">${entry.blogDone ? "글 작성 완료" : "글 작성 필요"}</button>`
+          : "";
+        return `
+          <article class="item">
+            <div>
+              <strong>${escapeHtml(entry.title)}</strong>
+              <div class="meta">${formatDate(entry.date)} · ${escapeHtml(entry.category)} · ${escapeHtml(entry.person)}${method}${supplyText}${campaignSite}</div>
+              ${blogButton}
+            </div>
+            <div class="item-actions">
+              <div class="price ${priceClass}">${sign}${money(entry.amount)}</div>
+              <button class="edit" data-edit="${entry.id}" type="button">수정</button>
+              <button class="delete" data-delete="${entry.id}" type="button" aria-label="기록 삭제">×</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSettlements() {
+      const months = new Map();
+
+      state.entries.forEach((entry) => {
+        if (!entry.date) return;
+        const month = entry.date.slice(0, 7);
+        if (!months.has(month)) {
+          months.set(month, {
+            month,
+            income: 0,
+            expense: 0,
+            supply: 0,
+            expenseCount: 0,
+            blogTodo: 0
+          });
+        }
+
+        const summary = months.get(month);
+        if (entry.type === "income") {
+          summary.income += Number(entry.amount || 0);
+          return;
+        }
+
+        if (entry.type === "expense") {
+          const supply = getSupply(entry);
+          summary.expense += Number(entry.amount || 0);
+          summary.supply += supply;
+          summary.expenseCount += 1;
+          if (isBlogRequired(entry) && !entry.blogDone) {
+            summary.blogTodo += 1;
+          }
+        }
+      });
+
+      const summaries = Array.from(months.values()).sort((a, b) => b.month.localeCompare(a.month));
+      if (!summaries.length) {
+        els.settlementList.innerHTML = `<div class="empty">아직 결산할 기록이 없어요.</div>`;
+        return;
+      }
+
+      els.settlementList.innerHTML = summaries.map((summary) => {
+        const totalValue = summary.expense + summary.supply;
+        const balance = summary.income - summary.expense;
+        return `
+          <article class="settlement-card">
+            <div class="settlement-head">
+              <strong>${escapeHtml(summary.month)}</strong>
+              <span>${summary.expenseCount}건 · 글 미작성 ${summary.blogTodo}건</span>
+            </div>
+            <div class="settlement-grid">
+              <div class="settlement-metric">
+                <span>실제 지출</span>
+                <strong>${money(summary.expense)}</strong>
+              </div>
+              <div class="settlement-metric">
+                <span>공급받은 금액</span>
+                <strong>${money(summary.supply)}</strong>
+              </div>
+              <div class="settlement-metric">
+                <span>총 체감가치</span>
+                <strong>${money(totalValue)}</strong>
+              </div>
+              <div class="settlement-metric">
+                <span>충전</span>
+                <strong>${money(summary.income)}</strong>
+              </div>
+              <div class="settlement-metric">
+                <span>잔액</span>
+                <strong>${money(balance)}</strong>
+              </div>
+              <div class="settlement-metric">
+                <span>공급 비율</span>
+                <strong>${totalValue ? Math.round((summary.supply / totalValue) * 100) : 0}%</strong>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderSchedules(schedules) {
+      const blogTasks = pendingBlogTasks();
+
+      if (!schedules.length && !blogTasks.length) {
+        els.scheduleList.innerHTML = `<div class="empty">아직 일정이 없어요.<br>일정을 추가해보세요.</div>`;
+        return;
+      }
+
+      const scheduleHtml = schedules.map((schedule) => {
+        const memo = schedule.memo ? `<div class="meta">${escapeHtml(schedule.memo)}</div>` : "";
+        const statusClass = schedule.status === "완료" ? "done" : schedule.status === "취소" ? "cancelled" : "";
+        const time = schedule.time ? ` ${escapeHtml(schedule.time)}` : "";
+        const kind = String(schedule.kind || "데이트").trim();
+        const kindClass = kind === "경조사" ? "event" : "";
+        return `
+          <article class="item">
+            <div>
+              <span class="kind-badge ${kindClass}">${escapeHtml(kind)}</span>
+              <span class="schedule-status ${statusClass}">${escapeHtml(schedule.status || "예정")}</span>
+              <strong>${escapeHtml(schedule.place)}</strong>
+              <div class="meta">${formatDate(schedule.date)}${time}</div>
+              ${memo}
+            </div>
+            <div class="item-actions">
+              <button class="edit" data-edit-schedule="${schedule.id}" type="button">수정</button>
+              <button class="delete" data-delete-schedule="${schedule.id}" type="button" aria-label="일정 삭제">×</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      const blogHtml = blogTasks.map((entry) => {
+        const supply = getSupply(entry);
+        const site = entry.campaignSite ? escapeHtml(entry.campaignSite) : "사이트 미입력";
+        return `
+          <article class="item blog-task">
+            <div class="blog-task-row">
+              <input class="blog-task-check" data-blog-check="${entry.id}" type="checkbox" aria-label="블로그 글 작성 완료">
+              <div>
+                <span class="kind-badge event">블로그</span>
+                <strong>${escapeHtml(entry.title)}</strong>
+                <div class="meta">${formatDate(entry.date)} · ${site} · 공급받은 금액 ${money(supply)}</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      els.scheduleList.innerHTML = scheduleHtml + blogHtml;
+    }
+
+    function renderNextDate() {
+      const upcomingSchedules = state.schedules
+        .filter((schedule) => schedule.status !== "취소" && isWithinNextMonth(schedule.date))
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || (a.time || "").localeCompare(b.time || ""))
+        .slice(0, 3);
+      const blogTask = pendingBlogTasks()[0];
+
+      if (!upcomingSchedules.length && !blogTask) {
+        els.nextDate.textContent = "일정을 추가해보세요.";
+        return;
+      }
+
+      const lines = [];
+      upcomingSchedules.forEach((schedule) => {
+        const days = Math.ceil((new Date(`${schedule.date}T00:00:00`) - new Date(`${todayText}T00:00:00`)) / 86400000);
+        const dday = days === 0 ? "오늘" : `D-${days}`;
+        const time = schedule.time ? ` ${escapeHtml(schedule.time)}` : "";
+        const kind = String(schedule.kind || "데이트").trim();
+        const kindClass = kind === "경조사" ? "event" : "";
+        lines.push(`<span><b class="top-kind ${kindClass}">${escapeHtml(kind)}</b> · ${dday} · ${formatDate(schedule.date)}${time} · ${escapeHtml(schedule.place)}</span>`);
+      });
+
+      if (blogTask) {
+        const site = blogTask.campaignSite ? escapeHtml(blogTask.campaignSite) : "사이트 미입력";
+        lines.push(`
+          <label class="top-blog-task">
+            <input data-top-blog-check="${blogTask.id}" type="checkbox" aria-label="블로그 글 작성 완료">
+            <span>${formatDate(blogTask.date)} · ${site} · ${escapeHtml(blogTask.title)}</span>
+          </label>
+        `);
+      }
+
+      els.nextDate.innerHTML = lines.join("");
+    }
+
+    function sum(entries, type) {
+      return entries
+        .filter((entry) => entry.type === type)
+        .reduce((total, entry) => total + entry.amount, 0);
+    }
+
+    function getSupply(entry) {
+      return Number(entry.supply ?? entry.discount ?? 0);
+    }
+
+    function isBlogRequired(entry) {
+      return entry.blogRequired === true || entry.blogDone === true || (entry.blogRequired == null && Boolean(getSupply(entry)));
+    }
+
+    function pendingBlogTasks() {
+      return state.entries
+        .filter((entry) => entry.type === "expense" && isBlogRequired(entry) && !entry.blogDone)
+        .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+    }
+
+    function isWithinNextMonth(value) {
+      const dateText = String(value || "");
+      if (!dateText) return false;
+      return dateText >= todayText && dateText <= nextMonthText();
+    }
+
+    function nextMonthText() {
+      const date = new Date(`${todayText}T00:00:00`);
+      date.setMonth(date.getMonth() + 1);
+      return toDateInput(date);
+    }
+
+    function money(value) {
+      return `${value.toLocaleString("ko-KR")}원`;
+    }
+
+    function formatDate(value) {
+      if (!value) return "날짜 없음";
+      const date = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric", weekday: "short" }).format(date);
+    }
+
+    function toDateInput(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify({
+        entries: state.entries,
+        schedules: state.schedules
+      }));
+    }
+
+    function setSyncStatus(message, type = "") {
+      els.syncStatus.textContent = message;
+      els.syncStatus.className = `sync ${type}`.trim();
+    }
+
+    async function loadFromSheet() {
+      if (!sheetApiUrl) {
+        setSyncStatus("로컬 저장 중");
+        return;
+      }
+
+      setSyncStatus("시트 불러오는 중");
+      try {
+        const data = await jsonp(`${sheetApiUrl}?action=list`);
+        if (Array.isArray(data.entries)) {
+          state.entries = data.entries;
+          state.schedules = Array.isArray(data.schedules) ? data.schedules : [];
+          save();
+          render();
+          setSyncStatus("구글 시트 동기화됨", "online");
+        }
+      } catch (error) {
+        setSyncStatus("시트 연결 확인 필요", "error");
+      }
+    }
+
+    function syncToSheet() {
+      if (!sheetApiUrl) {
+        setSyncStatus("로컬 저장 중");
+        return;
+      }
+
+      setSyncStatus("시트 저장 중");
+      fetch(sheetApiUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          action: "replace",
+          entries: state.entries,
+          schedules: state.schedules
+        })
+      })
+        .then(() => setSyncStatus("구글 시트 동기화됨", "online"))
+        .catch(() => setSyncStatus("시트 저장 실패", "error"));
+    }
+
+    function jsonp(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `sheetCallback_${Date.now()}_${Math.round(Math.random() * 100000)}`;
+        const script = document.createElement("script");
+        const separator = url.includes("?") ? "&" : "?";
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Sheet request timed out"));
+        }, 10000);
+
+        window[callbackName] = (payload) => {
+          cleanup();
+          resolve(payload);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Sheet request failed"));
+        };
+
+        script.src = `${url}${separator}callback=${callbackName}`;
+        document.body.appendChild(script);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+      });
+    }
+
+    loadFromSheet();
+    render();
+  </script>
+</body>
+</html>
